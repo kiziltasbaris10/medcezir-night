@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ateş & Su · Tapınak (Online)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#16110d;--stone:#2a2018;--gold:#e7b455;
+  --fire:#ef6f3c;--fire2:#f9a94e;--water:#41b6e6;--water2:#86d9f5;--poison:#7fc24a;
+  --sand:#f3e7d3;--sand-dim:#b6a488;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:"DM Sans",system-ui,sans-serif;background:
+  radial-gradient(120% 90% at 50% -10%, #2c2016 0%, var(--bg) 60%, #0b0805 100%);
+  color:var(--sand);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:14px;overflow:hidden;-webkit-user-select:none;user-select:none}
+.wrap{width:100%;max-width:880px;display:flex;flex-direction:column;gap:10px}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:"DM Mono",monospace}
+.title{font-family:"Fraunces",serif;font-size:1.2rem}
+.title .a{color:var(--fire2)}.title .s{color:var(--water2)}
+.gems{display:flex;align-items:center;gap:12px;font-size:.9rem}
+.gemc{display:inline-flex;align-items:center;gap:5px}
+.gemc .d{width:11px;height:11px;transform:rotate(45deg);border-radius:2px;display:inline-block}
+.gemc.red .d{background:var(--fire)}.gemc.blue .d{background:var(--water)}
+.lvl{font-size:.78rem;color:var(--sand-dim);letter-spacing:.08em;text-transform:uppercase}
+.hud button{font-family:"DM Mono";font-size:.78rem;color:var(--sand);background:rgba(243,231,211,.08);
+  border:1px solid rgba(243,231,211,.2);border-radius:9px;padding:7px 11px;cursor:pointer}
+.hud button:hover{background:rgba(243,231,211,.15)}
+.netdot{font-size:.7rem;color:var(--sand-dim)}
+.netdot b{color:var(--poison)}
+
+.frame{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(231,180,85,.25);
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.8), inset 0 0 60px rgba(0,0,0,.4);background:#0d0a07}
+canvas{display:block;width:100%;height:auto}
+.overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;background:rgba(13,10,7,.86);backdrop-filter:blur(3px);padding:22px;z-index:5;overflow:auto}
+.overlay.show{display:flex;animation:fade .35s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.overlay h2{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(1.5rem,5vw,2.3rem);line-height:1.1;margin-bottom:8px}
+.overlay p{color:var(--sand-dim);max-width:36ch;line-height:1.5;margin-bottom:16px;font-size:.94rem}
+.btn{font-family:"DM Sans";font-weight:600;font-size:1rem;color:#1a120b;border:none;border-radius:13px;
+  padding:13px 24px;cursor:pointer;background:linear-gradient(180deg,var(--fire2),var(--fire));
+  box-shadow:0 12px 26px -10px rgba(239,111,60,.6)}
+.btn.cool{background:linear-gradient(180deg,var(--water2),var(--water));box-shadow:0 12px 26px -10px rgba(65,182,230,.6)}
+.btn.ghost{background:transparent;color:var(--sand);border:1px solid rgba(243,231,211,.3);box-shadow:none;font-weight:500}
+.btn:active{transform:scale(.97)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.keys{display:flex;gap:24px;justify-content:center;margin:4px 0 18px;flex-wrap:wrap}
+.keycol{display:flex;flex-direction:column;align-items:center;gap:6px}
+.keycol .who{font-family:"DM Mono";font-size:.76rem;letter-spacing:.08em}
+.keycol.fire .who{color:var(--fire2)}.keycol.water .who{color:var(--water2)}
+.keyrow{display:flex;gap:5px}
+.kbd{font-family:"DM Mono";font-size:.78rem;min-width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:7px;background:rgba(243,231,211,.1);border:1px solid rgba(243,231,211,.25)}
+.code{font-family:"DM Mono";font-size:2rem;letter-spacing:.32em;color:var(--gold);
+  background:rgba(231,180,85,.08);border:1px dashed rgba(231,180,85,.4);border-radius:12px;
+  padding:12px 18px;margin:6px 0 10px}
+.field{display:flex;gap:8px;justify-content:center;margin:8px 0 14px;flex-wrap:wrap}
+.field input{font-family:"DM Mono";font-size:1.2rem;letter-spacing:.2em;text-transform:uppercase;text-align:center;
+  width:160px;padding:11px;border-radius:11px;background:rgba(13,10,7,.6);
+  border:1px solid rgba(243,231,211,.3);color:var(--sand)}
+.status{font-family:"DM Mono";font-size:.8rem;color:var(--sand-dim);margin-top:6px;min-height:18px}
+.small{font-size:.78rem;color:var(--sand-dim);margin-top:10px;max-width:34ch;line-height:1.4}
+
+.touch{display:flex;justify-content:space-between;gap:10px;touch-action:none}
+.pad{display:flex;gap:8px;align-items:flex-end}
+.pad.hide{display:none}
+.pad .lbl{font-family:"DM Mono";font-size:.64rem;letter-spacing:.1em;align-self:center;writing-mode:vertical-rl;transform:rotate(180deg)}
+.pad.fire .lbl{color:var(--fire2)}.pad.water .lbl{color:var(--water2)}
+.tbtn{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;color:var(--sand);background:rgba(243,231,211,.08);border:1px solid rgba(243,231,211,.2);cursor:pointer}
+.tbtn:active,.tbtn.on{background:rgba(243,231,211,.22)}
+.pad.fire .tbtn:active,.pad.fire .tbtn.on{background:rgba(239,111,60,.3);border-color:var(--fire)}
+.pad.water .tbtn:active,.pad.water .tbtn.on{background:rgba(65,182,230,.3);border-color:var(--water)}
+.hint{text-align:center;font-family:"DM Mono";font-size:.7rem;color:var(--sand-dim);letter-spacing:.05em}
+@media(min-width:760px){.touch{display:none}.hint.mob{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hud">
+    <div class="title"><span class="a">Ateş</span> &amp; <span class="s">Su</span></div>
+    <div class="gems">
+      <span class="gemc red"><span class="d"></span><span id="redLeft">0</span></span>
+      <span class="gemc blue"><span class="d"></span><span id="blueLeft">0</span></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="lvl" id="lvlLabel">Bölüm 1</span>
+      <span class="netdot" id="netDot"></span>
+      <button id="resetBtn">↺</button>
+    </div>
+  </div>
+
+  <div class="frame">
+    <canvas id="game"></canvas>
+
+    <!-- in-game phase overlay -->
+    <div class="overlay" id="overlay">
+      <h2 id="ovTitle">Ateş &amp; Su</h2>
+      <p id="ovText"></p>
+      <div class="keys" id="ovKeys">
+        <div class="keycol fire"><span class="who">ATEŞ 🔥</span>
+          <div class="keyrow"><span class="kbd">←</span><span class="kbd">↑</span><span class="kbd">→</span></div></div>
+        <div class="keycol water"><span class="who">SU 💧</span>
+          <div class="keyrow"><span class="kbd">A</span><span class="kbd">W</span><span class="kbd">D</span></div></div>
+      </div>
+      <button class="btn" id="ovBtn">Başla</button>
+    </div>
+
+    <!-- connection overlay -->
+    <div class="overlay show" id="net">
+      <div id="netBody"></div>
+    </div>
+  </div>
+
+  <div class="touch" id="touch">
+    <div class="pad water hide" id="padWater" data-p="water">
+      <span class="lbl">SU</span>
+      <div class="tbtn" data-act="wL">◀</div><div class="tbtn jump" data-act="wJ">▲</div><div class="tbtn" data-act="wR">▶</div>
+    </div>
+    <div class="pad fire hide" id="padFire" data-p="fire">
+      <div class="tbtn" data-act="fL">◀</div><div class="tbtn jump" data-act="fJ">▲</div><div class="tbtn" data-act="fR">▶</div>
+      <span class="lbl">ATEŞ</span>
+    </div>
+  </div>
+  <div class="hint mob" id="touchHint"></div>
+</div>
+
+<script>
+/* ===================== LEVELS ===================== */
+const LEVELS = [
+  ["####################","#                  #","#                  #","#                  #","#  r          b    #","# ###        ###   #","#wF  LL    AA   W f#","####################"],
+  ["####################","#                  #","#                  #","#                  #","#    r      b      #","#   ###   G###     #","#wFB LL   G  AA  Wf#","####################"],
+  ["####################","#                  #","#                  #","#                  #","#   r        b     #","#  ###    G ###    #","#wF B PP  G LL AAWf#","####################"],
+  ["####################","#                  #","#                  #","#                  #","#  r            b  #","# ###          ### #","#wF L AA PP L  Wf  #","####################"],
+  ["####################","#                  #","#                  #","#                  #","#     r       b    #","#    ###  G  ###   #","#wF AA    G LL B Wf#","####################"],
+  ["####################","#                  #","#                  #","#                  #","#    r          b  #","#   ### G      ### #","#wF B PPG LL AA Wf #","####################"],
+  ["####################","#                  #","#                  #","#                  #","#   r          b   #","#  ###  G     ###  #","#wFB AA G PP LL Wf #","####################"],
+];
+const TS=40, GRAV=2000, JUMP=620, SPD=190, ACC=2600, FRIC=2400, MAXFALL=900;
+
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+let cols,rows,grid,base,players,gateOpen,redLeft,blueLeft,level=0;
+let state='menu';        // menu|play|dead|levelclear|win|disconnected
+let mode='local';        // local|online
+let role=null;           // host|guest
+let myEl='fire', remoteEl='water';
+let last=0,acc=0;
+let leverLatch=false;
+
+/* ===================== LEVEL/RESET ===================== */
+function loadLevel(n){
+  base=LEVELS[n].map(r=>r.split(''));
+  rows=base.length; cols=Math.max(...base.map(r=>r.length));
+  base.forEach(r=>{while(r.length<cols)r.push(' ');});
+  reset(); sizeCanvas();
+}
+function reset(){
+  grid=base.map(r=>r.slice());
+  gateOpen=false; redLeft=0; blueLeft=0; leverLatch=false;
+  let fs,ws;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=grid[r][c];
+    if(t==='F'){fs=[c,r];grid[r][c]=' ';}
+    if(t==='W'){ws=[c,r];grid[r][c]=' ';}
+    if(t==='r')redLeft++; if(t==='b')blueLeft++;
+  }
+  players={fire:newP(fs,'fire'), water:newP(ws,'water')};
+  updateHud();
+}
+function newP(cell,el){
+  const w=24,h=30;
+  return {el,w,h,x:cell[0]*TS+(TS-w)/2,y:cell[1]*TS+(TS-h),vx:0,vy:0,onGround:false,canJump:true,atDoor:false,dead:false,face:1,
+          tx:cell[0]*TS+(TS-w)/2,ty:cell[1]*TS+(TS-h)};
+}
+function sizeCanvas(){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=cols*TS*dpr; canvas.height=rows*TS*dpr;
+  canvas.style.aspectRatio=cols+'/'+rows;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+/* ===================== INPUT ===================== */
+const held={fL:0,fR:0,fJ:0,wL:0,wR:0,wJ:0};
+const KEYMAP={arrowleft:'fL',arrowright:'fR',arrowup:'fJ',a:'wL',d:'wR',w:'wJ'};
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+  if(KEYMAP[k]){held[KEYMAP[k]]=1;e.preventDefault();}
+  if((k===' '||k==='enter')&&overlay.classList.contains('show')&&ovBtn.style.display!=='none')ovBtn.click();});
+addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(KEYMAP[k]){held[KEYMAP[k]]=0;e.preventDefault();}});
+document.querySelectorAll('.tbtn').forEach(b=>{const act=b.dataset.act;
+  const on=e=>{held[act]=1;b.classList.add('on');e.preventDefault();};
+  const off=e=>{held[act]=0;b.classList.remove('on');e.preventDefault();};
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);
+  b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off);});
+
+function inputFor(el){
+  if(mode==='online'){ // her iki şema da senin karakterini sürer
+    return {L:held.fL||held.wL, R:held.fR||held.wR, J:held.fJ||held.wJ};
+  }
+  return el==='fire' ? {L:held.fL,R:held.fR,J:held.fJ} : {L:held.wL,R:held.wR,J:held.wJ};
+}
+
+/* ===================== PHYSICS ===================== */
+function solid(c,r){
+  if(c<0||c>=cols||r<0||r>=rows)return true;
+  const t=grid[r][c];
+  if(t==='#')return true;
+  if(t==='G')return !gateOpen;
+  return false;
+}
+function step(p,dt){
+  if(p.dead)return;
+  const inp=inputFor(p.el);
+  if(inp.L&&!inp.R){p.vx-=ACC*dt;p.face=-1;}
+  else if(inp.R&&!inp.L){p.vx+=ACC*dt;p.face=1;}
+  else{ if(p.vx>0){p.vx-=FRIC*dt;if(p.vx<0)p.vx=0;} else if(p.vx<0){p.vx+=FRIC*dt;if(p.vx>0)p.vx=0;} }
+  if(p.vx>SPD)p.vx=SPD; if(p.vx<-SPD)p.vx=-SPD;
+  if(inp.J&&p.onGround&&p.canJump){p.vy=-JUMP;p.onGround=false;p.canJump=false;}
+  if(!inp.J)p.canJump=true;
+  p.vy+=GRAV*dt; if(p.vy>MAXFALL)p.vy=MAXFALL;
+
+  p.x+=p.vx*dt;
+  let r0=Math.floor(p.y/TS), r1=Math.floor((p.y+p.h-1)/TS);
+  if(p.vx>0){const c=Math.floor((p.x+p.w)/TS);for(let r=r0;r<=r1;r++)if(solid(c,r)){p.x=c*TS-p.w-0.001;p.vx=0;break;}}
+  else if(p.vx<0){const c=Math.floor(p.x/TS);for(let r=r0;r<=r1;r++)if(solid(c,r)){p.x=(c+1)*TS+0.001;p.vx=0;break;}}
+
+  p.y+=p.vy*dt; p.onGround=false;
+  let c0=Math.floor(p.x/TS), c1=Math.floor((p.x+p.w-1)/TS);
+  if(p.vy>0){const r=Math.floor((p.y+p.h)/TS);for(let c=c0;c<=c1;c++)if(solid(c,r)){p.y=r*TS-p.h-0.001;p.vy=0;p.onGround=true;break;}}
+  else if(p.vy<0){const r=Math.floor(p.y/TS);for(let c=c0;c<=c1;c++)if(solid(c,r)){p.y=(r+1)*TS+0.001;p.vy=0;break;}}
+
+  p.atDoor=false;
+  const ic={x:p.x+4,y:p.y+4,w:p.w-8,h:p.h-8};
+  for(let r=Math.floor(ic.y/TS);r<=Math.floor((ic.y+ic.h)/TS);r++)
+  for(let c=Math.floor(ic.x/TS);c<=Math.floor((ic.x+ic.w)/TS);c++){
+    if(c<0||c>=cols||r<0||r>=rows)continue;
+    const t=grid[r][c];
+    if(t==='L'&&p.el==='water')killSelf(p);
+    if(t==='A'&&p.el==='fire')killSelf(p);
+    if(t==='P')killSelf(p);
+    if(t==='r'&&p.el==='fire')collectGem(c,r,true);
+    if(t==='b'&&p.el==='water')collectGem(c,r,true);
+    if(t==='B'){ if(!leverLatch){requestLever();leverLatch=true;} }
+    if((t==='f'&&p.el==='fire')||(t==='w'&&p.el==='water'))p.atDoor=true;
+  }
+}
+function leverTouching(){
+  for(const k in players){const p=players[k];
+    if(mode==='online'&&k!==myEl)continue; // sadece kendi karakterin tetikler
+    const ic={x:p.x+4,y:p.y+4,w:p.w-8,h:p.h-8};
+    for(let r=Math.floor(ic.y/TS);r<=Math.floor((ic.y+ic.h)/TS);r++)
+    for(let c=Math.floor(ic.x/TS);c<=Math.floor((ic.x+ic.w)/TS);c++)
+      if(grid[r]&&grid[r][c]==='B')return true;
+  }
+  return false;
+}
+
+/* ===================== SHARED-WORLD ACTIONS ===================== */
+function collectGem(c,r,broadcast){
+  if(!grid[r]||grid[r][c]===' ')return;
+  const t=grid[r][c];
+  if(t==='r'){grid[r][c]=' ';redLeft--;}
+  else if(t==='b'){grid[r][c]=' ';blueLeft--;}
+  else return;
+  updateHud();
+  if(broadcast&&mode==='online')send({t:'g',c,r});
+}
+function requestLever(){
+  if(mode!=='online'){ gateOpen=!gateOpen; return; }
+  if(role==='host'){ gateOpen=!gateOpen; send({t:'gate',open:gateOpen}); }
+  else send({t:'lever'});
+}
+function killSelf(p){
+  if(p.dead)return; p.dead=true;
+  if(mode==='online'){ send({t:'death'});
+    if(role==='host')hostSetPhase('dead'); else { /* host'tan phase bekleyeceğiz ama yerel de göster */ localDead(); }
+  }
+}
+function localDead(){ state='dead'; showDead(); }
+
+/* ===================== UPDATE LOOP ===================== */
+function update(dt){
+  if(state!=='play')return;
+  if(mode==='local'){
+    step(players.fire,dt); step(players.water,dt);
+    if(!leverTouching())leverLatch=false;
+    if(players.fire.dead||players.water.dead){state='dead';showDead();return;}
+    if(players.fire.atDoor&&players.water.atDoor&&redLeft<=0&&blueLeft<=0){clearLevel();}
+  }else{
+    // sadece kendi karakterini simüle et
+    step(players[myEl],dt);
+    if(!leverTouching())leverLatch=false;
+    // uzaktaki karakteri ağ verisine doğru yumuşat
+    const rp=players[remoteEl];
+    rp.x+=(rp.tx-rp.x)*Math.min(1,dt*14);
+    rp.y+=(rp.ty-rp.y)*Math.min(1,dt*14);
+    // ağ gönder (throttle)
+    netSend();
+    // host: kazanma kontrolü
+    if(role==='host'){
+      const a=players.fire.atDoor, b=players.water.atDoor;
+      if(a&&b&&redLeft<=0&&blueLeft<=0)hostClear();
+    }
+  }
+}
+function frame(t){
+  if(!last)last=t; let dt=(t-last)/1000; last=t; if(dt>0.05)dt=0.05;
+  acc+=dt; while(acc>=1/120){update(1/120);acc-=1/120;} draw();
+  requestAnimationFrame(frame);
+}
+
+/* ===================== NETWORK ===================== */
+let peer=null, conn=null, lastSend=0;
+function send(m){ if(conn&&conn.open) conn.send(m); }
+function netSend(){
+  const now=performance.now();
+  if(now-lastSend<33)return; lastSend=now;
+  const p=players[myEl];
+  send({t:'s',x:p.x,y:p.y,vx:p.vx,face:p.face,door:p.atDoor,dead:p.dead});
+}
+function onData(m){
+  switch(m.t){
+    case 's':{ const rp=players[remoteEl]; rp.tx=m.x;rp.ty=m.y;rp.vx=m.vx;rp.face=m.face;rp.atDoor=m.door;rp.dead=m.dead; break; }
+    case 'g': collectGem(m.c,m.r,false); break;
+    case 'lever': if(role==='host'){gateOpen=!gateOpen;send({t:'gate',open:gateOpen});} break;
+    case 'gate': gateOpen=m.open; break;
+    case 'death': if(role==='host')hostSetPhase('dead'); else localDead(); break;
+    case 'phase': applyPhase(m.p); break;
+    case 'reset': level=m.level; loadLevel(level); state='play'; hideOverlay(); break;
+    case 'retry': if(role==='host')hostRetry(); break;
+    case 'next': if(role==='host')hostNext(); break;
+  }
+}
+function hostSetPhase(p){ if(state==='dead'||state==='levelclear'||state==='win')return;
+  if(p==='dead'){state='dead';showDead();send({t:'phase',p:'dead'});} }
+function hostClear(){
+  if(state!=='play')return;
+  if(level>=LEVELS.length-1){state='win';showWin();send({t:'phase',p:'win'});}
+  else{state='levelclear';showClear();send({t:'phase',p:'clear'});}
+}
+function applyPhase(p){ if(p==='dead'){state='dead';showDead();}
+  else if(p==='clear'){state='levelclear';showClear();}
+  else if(p==='win'){state='win';showWin();} }
+function hostRetry(){ reset(); state='play'; hideOverlay(); send({t:'reset',level}); }
+function hostNext(){ if(level<LEVELS.length-1)level++; else level=0; loadLevel(level); state='play'; hideOverlay(); send({t:'reset',level}); }
+
+/* ----- connection setup ----- */
+const PEER_CDNS=[
+  'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js',
+  'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js',
+];
+function loadScript(src){return new Promise((res,rej)=>{
+  const s=document.createElement('script');s.src=src;s.async=true;
+  s.onload=res;s.onerror=()=>rej(new Error(src));
+  const to=setTimeout(()=>rej(new Error('timeout')),8000);
+  s.onload=()=>{clearTimeout(to);res();};
+  document.head.appendChild(s);});}
+async function ensurePeer(){
+  if(typeof Peer!=='undefined')return true;
+  for(const url of PEER_CDNS){ try{ await loadScript(url); if(typeof Peer!=='undefined')return true; }catch(e){} }
+  return typeof Peer!=='undefined';
+}
+async function goOnline(){
+  netBody.innerHTML=`<h2>Online</h2><div class="status" id="netStatus">Bağlantı kütüphanesi yükleniyor…</div>`;
+  const ok=await ensurePeer();
+  if(ok){ onlineMenu(); return; }
+  netBody.innerHTML=`
+    <h2>Yüklenemedi 🔌</h2>
+    <p>Online mod için gereken bağlantı kütüphanesi yüklenemedi.</p>
+    <div class="btnrow">
+      <button class="btn" id="rtry">Tekrar dene</button>
+      <button class="btn ghost" id="bk">← Geri</button>
+    </div>
+    <div class="small">En sık sebep: oyunu henüz bir <b>internet adresinde</b> açmadın. Bu dosyayı <b>netlify.com/drop</b>'a sürükleyip oradaki linkten açarsan online mod sorunsuz çalışır. (Bilgisayarda çift tıklayarak ya da önizlemede açınca çalışmayabilir.)</div>`;
+  document.getElementById('rtry').onclick=goOnline;
+  document.getElementById('bk').onclick=netMenu;
+}
+
+const CODE_ALPHABET="ABCDEFGHJKLMNPRSTUVWXYZ23456789";
+function genCode(){let s='';for(let i=0;i<4;i++)s+=CODE_ALPHABET[Math.floor(Math.random()*CODE_ALPHABET.length)];return s;}
+const netDiv=document.getElementById('net'), netBody=document.getElementById('netBody'), netDot=document.getElementById('netDot');
+
+function netMenu(){
+  netDiv.classList.add('show');
+  netBody.innerHTML=`
+    <h2><span style="color:var(--fire2)">Ateş</span> &amp; <span style="color:var(--water2)">Su</span></h2>
+    <p>Birlikte mi, uzaktan mı oynayacaksınız?</p>
+    <div class="btnrow">
+      <button class="btn" id="mLocal">Aynı bilgisayar (2 kişi)</button>
+      <button class="btn cool" id="mOnline">Online (uzaktan) 🌍</button>
+    </div>
+    <div class="small">Online modda biri oda kurar, kodu paylaşır; diğeri o kodla bağlanır. Oda kuran <b style="color:var(--fire2)">Ateş</b>, katılan <b style="color:var(--water2)">Su</b> olur.</div>`;
+  document.getElementById('mLocal').onclick=startLocal;
+  document.getElementById('mOnline').onclick=goOnline;
+}
+function startLocal(){
+  mode='local'; role=null; myEl='fire';
+  netDiv.classList.remove('show');
+  document.getElementById('padWater').classList.remove('hide');
+  document.getElementById('padFire').classList.remove('hide');
+  document.getElementById('touchHint').textContent='İki kişilik: 🔥 yön tuşları · 💧 WASD';
+  level=0; loadLevel(0);
+  showStart();
+}
+function onlineMenu(){
+  if(typeof Peer==='undefined'){ goOnline(); return; }
+  netBody.innerHTML=`
+    <h2>Online</h2>
+    <p>Oda kur ve kodu sevgiline gönder, ya da onun kodunu gir.</p>
+    <div class="btnrow">
+      <button class="btn" id="bHost">Oda kur 🔥</button>
+      <button class="btn cool" id="bJoin">Odaya katıl 💧</button>
+    </div>
+    <button class="btn ghost" id="bBack" style="margin-top:12px">← Geri</button>`;
+  document.getElementById('bHost').onclick=hostRoom;
+  document.getElementById('bJoin').onclick=()=>joinRoom('');
+  document.getElementById('bBack').onclick=netMenu;
+}
+function setupPeerCommon(){
+  peer.on('error',err=>{
+    const s=document.getElementById('netStatus');
+    if(err.type==='unavailable-id'){ // kod çakıştı, yeniden dene (host)
+      if(role==='host'){ peer.destroy(); hostRoom(); return; }
+    }
+    if(s)s.textContent='Bağlantı hatası: '+err.type+' — tekrar dene.';
+  });
+  peer.on('disconnected',()=>{ if(state==='play'){ /* sinyal sunucusu koptu, p2p sürebilir */ } });
+}
+function bindConn(){
+  conn.on('open',()=>{
+    netDot.innerHTML='<b>●</b> bağlı';
+    if(role==='host'){ // oyunu başlat ve seviyeyi paylaş
+      mode='online'; level=0; loadLevel(0); state='play';
+      netDiv.classList.remove('show'); showOnlineHint();
+      send({t:'reset',level:0});
+    }
+  });
+  conn.on('data',onData);
+  conn.on('close',()=>onDisconnect());
+  conn.on('error',()=>onDisconnect());
+}
+function hostRoom(){
+  role='host'; myEl='fire'; remoteEl='water';
+  const code=genCode();
+  peer=new Peer('atessu-'+code); setupPeerCommon();
+  const link=location.origin+location.pathname+'?join='+code;
+  netBody.innerHTML=`
+    <h2>Oda kodun</h2>
+    <div class="code">${code}</div>
+    <p>Bu kodu ya da aşağıdaki linki sevgiline gönder. O katılınca oyun başlayacak.</p>
+    <div class="btnrow">
+      <button class="btn" id="cpCode">Kodu kopyala</button>
+      <button class="btn cool" id="cpLink">Linki kopyala</button>
+    </div>
+    <div class="status" id="netStatus">Oda hazırlanıyor…</div>
+    <button class="btn ghost" id="bBack" style="margin-top:12px">← İptal</button>`;
+  document.getElementById('cpCode').onclick=()=>copy(code,'Kod kopyalandı ✓');
+  document.getElementById('cpLink').onclick=()=>copy(link,'Link kopyalandı ✓');
+  document.getElementById('bBack').onclick=()=>{try{peer.destroy()}catch(e){}; onlineMenu();};
+  peer.on('open',()=>{document.getElementById('netStatus').textContent='Arkadaşın bekleniyor…';});
+  peer.on('connection',c=>{ conn=c; bindConn(); });
+}
+function joinRoom(prefill){
+  role='guest'; myEl='water'; remoteEl='fire';
+  netBody.innerHTML=`
+    <h2>Odaya katıl</h2>
+    <p>Sevgilinin verdiği 4 haneli kodu gir.</p>
+    <div class="field"><input id="joinCode" maxlength="4" placeholder="KOD" value="${prefill}"></div>
+    <button class="btn cool" id="bConnect">Bağlan 💧</button>
+    <div class="status" id="netStatus"></div>
+    <button class="btn ghost" id="bBack" style="margin-top:12px">← Geri</button>`;
+  const inp=document.getElementById('joinCode');
+  document.getElementById('bConnect').onclick=()=>doJoin(inp.value.trim().toUpperCase());
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')doJoin(inp.value.trim().toUpperCase());});
+  document.getElementById('bBack').onclick=onlineMenu;
+  if(prefill)setTimeout(()=>doJoin(prefill.toUpperCase()),300);
+}
+function doJoin(code){
+  if(!code||code.length<4){document.getElementById('netStatus').textContent='Geçerli bir kod gir.';return;}
+  document.getElementById('netStatus').textContent='Bağlanılıyor…';
+  peer=new Peer(); setupPeerCommon();
+  peer.on('open',()=>{
+    conn=peer.connect('atessu-'+code,{reliable:true});
+    bindConn();
+    conn.on('open',()=>{ mode='online'; netDot.innerHTML='<b>●</b> bağlı';
+      document.getElementById('padWater').classList.remove('hide');
+      document.getElementById('touchHint').textContent='Sen 💧 SU · soldaki tuşlar / WASD / yön tuşları';
+      showOnlineHint(); netDiv.classList.remove('show'); });
+    setTimeout(()=>{ if(!conn||!conn.open){const s=document.getElementById('netStatus');if(s)s.textContent='Bağlanılamadı. Kodu ve arkadaşının odayı açtığını kontrol et.';} },9000);
+  });
+}
+function showOnlineHint(){
+  if(role==='host'){ document.getElementById('padFire').classList.remove('hide');
+    document.getElementById('touchHint').textContent='Sen 🔥 ATEŞ · sağdaki tuşlar / yön tuşları / WASD'; }
+}
+function onDisconnect(){
+  if(state==='disconnected')return;
+  state='disconnected';
+  showOverlay('Bağlantı koptu','Eşinle bağlantı kesildi. İnternet dalgalanmış olabilir. Tekrar oda kurup bağlanın.','Ana menü',false,false,()=>{location.href=location.origin+location.pathname;});
+}
+function copy(txt,ok){ navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>{const s=document.getElementById('netStatus');if(s)s.textContent=ok;}).catch(()=>{}); }
+
+/* ===================== DRAW ===================== */
+function draw(){
+  ctx.clearRect(0,0,cols*TS,rows*TS);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=grid[r][c],x=c*TS,y=r*TS;
+    if(t==='#'){drawStone(x,y);continue;}
+    if(t==='G'){drawGate(x,y);continue;}
+    if(t==='L')drawHazard(x,y,'#c43a22','#ef6f3c');
+    else if(t==='A')drawHazard(x,y,'#1e74a8','#41b6e6');
+    else if(t==='P')drawHazard(x,y,'#4f8a27','#7fc24a');
+    else if(t==='r')drawGem(x,y,'fire');
+    else if(t==='b')drawGem(x,y,'water');
+    else if(t==='B')drawLever(x,y);
+    else if(t==='f')drawDoor(x,y,'fire');
+    else if(t==='w')drawDoor(x,y,'water');
+  }
+  if(players){drawPlayer(players.fire);drawPlayer(players.water);}
+}
+function drawStone(x,y){ctx.fillStyle='#2a2018';ctx.fillRect(x,y,TS,TS);ctx.fillStyle='#352a1f';ctx.fillRect(x+2,y+2,TS-4,TS-4);
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x,y+TS-5,TS,5);ctx.strokeStyle='rgba(231,180,85,.06)';ctx.strokeRect(x+2.5,y+2.5,TS-5,TS-5);}
+function drawHazard(x,y,dark,light){ctx.fillStyle=dark;ctx.fillRect(x,y+TS*0.45,TS,TS*0.55);
+  const t=performance.now()/600;ctx.fillStyle=light;ctx.beginPath();ctx.moveTo(x,y+TS*0.5);
+  for(let i=0;i<=TS;i+=8)ctx.lineTo(x+i,y+TS*0.5+Math.sin(t+(x+i)/14)*3);
+  ctx.lineTo(x+TS,y+TS);ctx.lineTo(x,y+TS);ctx.closePath();ctx.fill();}
+function drawGate(x,y){if(gateOpen){ctx.fillStyle='rgba(231,180,85,.12)';ctx.fillRect(x+TS/2-2,y,4,TS);return;}
+  ctx.fillStyle='#5a4327';ctx.fillRect(x+4,y,TS-8,TS);ctx.fillStyle='#7a5c34';for(let i=6;i<TS-6;i+=8)ctx.fillRect(x+6,y+i,TS-12,3);}
+function drawGem(x,y,el){const col=el==='fire'?'#ef6f3c':'#41b6e6',lt=el==='fire'?'#f9c98a':'#aee6fb';
+  const cx=x+TS/2,cy=y+TS/2+2,s=8+Math.sin(performance.now()/400+x)*0.6;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI/4);ctx.fillStyle=col;ctx.fillRect(-s,-s,s*2,s*2);ctx.fillStyle=lt;ctx.fillRect(-s,-s,s,s);ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(cx-1,cy-9,2,18);}
+function drawLever(x,y){ctx.fillStyle='#4a3a24';ctx.fillRect(x+TS*0.3,y+TS-8,TS*0.4,8);
+  ctx.strokeStyle=gateOpen?'#e7b455':'#9a7b4a';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x+TS/2,y+TS-6);
+  ctx.lineTo(x+TS/2+(gateOpen?10:-10),y+TS-20);ctx.stroke();ctx.fillStyle=gateOpen?'#f9a94e':'#c98f4e';
+  ctx.beginPath();ctx.arc(x+TS/2+(gateOpen?10:-10),y+TS-20,4,0,7);ctx.fill();}
+function drawDoor(x,y,el){const col=el==='fire'?'#ef6f3c':'#41b6e6';ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(x+6,y+4,TS-12,TS-4);
+  ctx.fillStyle=col;ctx.globalAlpha=.35;ctx.fillRect(x+8,y+6,TS-16,TS-6);ctx.globalAlpha=1;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.strokeRect(x+8,y+6,TS-16,TS-6);
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(x+TS-13,y+TS/2+2,2,0,7);ctx.fill();}
+function drawPlayer(p){const x=p.x,y=p.y,w=p.w,h=p.h;const body=p.el==='fire'?'#ef6f3c':'#41b6e6';
+  const glow=p.el==='fire'?'rgba(249,169,78,.5)':'rgba(134,217,245,.5)';ctx.save();ctx.shadowColor=glow;ctx.shadowBlur=14;ctx.fillStyle=body;
+  roundRect(x,y+4,w,h-4,7);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=p.el==='fire'?'#f9a94e':'#86d9f5';
+  ctx.beginPath();ctx.moveTo(x+w/2,y-4);ctx.lineTo(x+w-5,y+9);ctx.lineTo(x+5,y+9);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#fff';ctx.fillRect(x+w/2-6+(p.face>0?2:-2),y+12,4,5);ctx.fillRect(x+w/2+2+(p.face>0?2:-2),y+12,4,5);
+  ctx.fillStyle='#1a120b';ctx.fillRect(x+w/2-5+(p.face>0?3:-1),y+13,2,3);ctx.fillRect(x+w/2+3+(p.face>0?3:-1),y+13,2,3);
+  if(mode==='online'&&p.el===myEl){ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='10px DM Mono';ctx.textAlign='center';ctx.fillText('▾',x+w/2,y-8);}
+  ctx.restore();}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* ===================== OVERLAYS ===================== */
+const overlay=document.getElementById('overlay'),ovTitle=document.getElementById('ovTitle'),ovText=document.getElementById('ovText');
+const ovBtn=document.getElementById('ovBtn'),ovKeys=document.getElementById('ovKeys');
+let ovAction=null;
+function showOverlay(title,text,btn,keys,cool,action){
+  ovTitle.innerHTML=title;ovText.innerHTML=text;
+  if(btn){ovBtn.style.display='';ovBtn.textContent=btn;}else ovBtn.style.display='none';
+  ovKeys.style.display=keys?'flex':'none';ovBtn.classList.toggle('cool',!!cool);ovAction=action||null;
+  overlay.classList.add('show');
+}
+function hideOverlay(){overlay.classList.remove('show');}
+function updateHud(){document.getElementById('redLeft').textContent=Math.max(0,redLeft);
+  document.getElementById('blueLeft').textContent=Math.max(0,blueLeft);
+  document.getElementById('lvlLabel').textContent='Bölüm '+(level+1);}
+
+function showStart(){
+  showOverlay('<span style="color:var(--fire2)">Ateş</span> &amp; <span style="color:var(--water2)">Su</span>',
+    'Elmasları toplayıp her ikinizi de kendi kapısına ulaştırın. 🔥 kırmızı, 💧 mavi elmasları toplar. Kaldıraçlar kapıları açar.',
+    'Başla',true,false,()=>{level=0;loadLevel(0);state='play';hideOverlay();});
+}
+function showDead(){
+  const txt='Biriniz yanlış elemente değdi. 🔥 maviye, 💧 kırmızıya değemez; yeşil ikinizi de yakar.';
+  if(mode==='online'&&role==='guest')
+    showOverlay('Of! 💥',txt,'Tekrar dene',false,false,()=>send({t:'retry'}));
+  else
+    showOverlay('Of! 💥',txt,'Tekrar dene',false,false,()=>{ if(mode==='online')hostRetry(); else {reset();state='play';hideOverlay();} });
+}
+function showClear(){
+  if(mode==='online'&&role==='guest')
+    showOverlay('Bölüm tamam! ✨','İkiniz de kapıdasınız.','Sonraki bölüm →',false,true,()=>send({t:'next'}));
+  else
+    showOverlay('Bölüm tamam! ✨','İkiniz de kapıdasınız ve tüm elmaslar toplandı.','Sonraki bölüm →',false,true,()=>{ if(mode==='online')hostNext(); else {level++;loadLevel(level);state='play';hideOverlay();} });
+}
+function showWin(){
+  if(mode==='online'&&role==='guest')
+    showOverlay('Tapınak sizin! 🏆','Tüm bölümleri birlikte geçtiniz.','Baştan oyna',false,true,()=>send({t:'next'}));
+  else
+    showOverlay('Tapınak sizin! 🏆','Tüm bölümleri birlikte geçtiniz. Uzaktan da olsa iyi bir ekipsiniz.','Baştan oyna',false,true,()=>{ if(mode==='online')hostNext(); else {level=0;loadLevel(0);state='play';hideOverlay();} });
+}
+ovBtn.onclick=()=>{ if(ovAction)ovAction(); };
+document.getElementById('resetBtn').onclick=()=>{
+  if(state==='play'||state==='dead'){ if(mode==='online'){ if(role==='host')hostRetry(); else send({t:'retry'}); } else {reset();state='play';hideOverlay();} }
+};
+addEventListener('resize',()=>{if(cols)sizeCanvas();});
+
+/* ===================== BOOT ===================== */
+loadLevel(0);
+const params=new URLSearchParams(location.search);
+if(params.get('join')){ netDiv.classList.add('show'); onlineMenuPrefill(params.get('join')); }
+else netMenu();
+function onlineMenuPrefill(code){ ensurePeer().then(ok=>{ if(ok)joinRoom(code.toUpperCase()); else goOnline(); }); }
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

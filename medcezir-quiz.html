@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Medcezir · Gel-Git Gecesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..600&family=DM+Sans:opsz,wght@9..40,400..600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#04161D;
+  --deep:#0A2C34;
+  --teal:#12454E;
+  --foam:#8FC9C0;
+  --gold:#F2BD68;
+  --gold-lt:#FBDDA0;
+  --coral:#E2776A;
+  --dusk:#7C4D6E;
+  --sand:#F5ECDB;
+  --sand-dim:#BDB199;
+  --ink:#04161D;
+  --ok:#7BC79A;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"DM Sans",system-ui,sans-serif;
+  color:var(--sand);
+  background:var(--night);
+  min-height:100dvh;
+  overflow-x:hidden;
+  position:relative;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== CINEMATIC BACKDROP ===== */
+.sky{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(140% 90% at 50% 86%, rgba(242,189,104,.16), transparent 46%),
+    linear-gradient(180deg,#06222B 0%, #0c3a40 30%, #5d4a64 62%, #c06a5e 80%, #f0b15f 92%, #f7cf86 100%);
+}
+.sun{
+  position:fixed;left:50%;bottom:30%;width:160px;height:160px;margin-left:-80px;z-index:0;
+  border-radius:50%;
+  background:radial-gradient(circle, #FCE4B0 0%, #F6C56F 45%, rgba(240,150,90,.5) 70%, transparent 72%);
+  filter:blur(.5px);
+  animation:sunpulse 7s ease-in-out infinite;
+}
+@keyframes sunpulse{50%{transform:scale(1.04);opacity:.94}}
+.sea{
+  position:fixed;left:0;right:0;bottom:0;height:30%;z-index:0;
+  background:linear-gradient(180deg, rgba(247,207,134,.5) 0%, #c06a5e 8%, #6a4767 30%, #0c3a40 70%, #051c22 100%);
+  overflow:hidden;
+}
+.glint{
+  position:absolute;left:50%;top:0;width:90px;height:100%;margin-left:-45px;
+  background:linear-gradient(180deg, rgba(252,228,176,.9), rgba(246,197,111,.3) 40%, transparent 75%);
+  filter:blur(3px);
+  -webkit-mask:repeating-linear-gradient(180deg, #000 0 4px, transparent 4px 9px);
+  mask:repeating-linear-gradient(180deg, #000 0 4px, transparent 4px 9px);
+  animation:glint 5s ease-in-out infinite;
+}
+@keyframes glint{50%{transform:scaleX(1.25);opacity:.7}}
+.swave{position:absolute;bottom:0;width:220%;left:-10%;height:60px;opacity:.5}
+.swave path{fill:#0a2c34}
+.swave.s2{opacity:.32;animation:roll 11s linear infinite reverse;height:48px}
+.swave.s1{opacity:.5;animation:roll 16s linear infinite;height:62px}
+.swave.s3{opacity:.22;animation:roll 22s linear infinite;height:80px}
+@keyframes roll{to{transform:translateX(-9.09%)}}
+@media (prefers-reduced-motion:reduce){
+  .swave,.sun,.glint{animation:none!important}
+}
+
+/* ===== STAGE ===== */
+.stage{
+  position:relative;z-index:3;
+  width:100%;max-width:540px;margin:0 auto;
+  min-height:100dvh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:26px 18px 40px;
+}
+.eyebrow{
+  font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--foam);
+}
+.wordmark{
+  font-family:"Fraunces",serif;font-weight:400;
+  font-size:clamp(3rem,15vw,4.6rem);line-height:.9;letter-spacing:-.015em;
+  text-shadow:0 6px 30px rgba(0,0,0,.45);
+}
+.wordmark em{font-style:italic;color:var(--gold)}
+.card{
+  background:linear-gradient(180deg, rgba(18,69,78,.62), rgba(8,38,46,.66));
+  border:1px solid rgba(143,201,192,.22);
+  border-radius:24px;padding:24px 20px;
+  box-shadow:var(--shadow);backdrop-filter:blur(8px);
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5em;width:100%;
+  padding:16px 20px;border-radius:15px;font-size:1.02rem;font-weight:600;
+  background:linear-gradient(180deg,var(--gold-lt),var(--gold));color:var(--ink);
+  box-shadow:0 10px 26px -10px rgba(242,189,104,.6);
+  transition:transform .14s ease, filter .14s ease;
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--sand);border:1px solid rgba(245,236,219,.32);box-shadow:none;font-weight:500}
+.btn.sm{width:auto;padding:11px 16px;font-size:.9rem;border-radius:12px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+.screen{display:none;animation:fadein .55s cubic-bezier(.2,.7,.2,1) both}
+.screen.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ===== WELCOME ===== */
+#welcome{text-align:center}
+#welcome .eyebrow{margin-bottom:16px}
+.tagline{font-family:"Fraunces",serif;font-style:italic;color:var(--sand);
+  font-size:1.06rem;line-height:1.55;max-width:30ch;margin:16px auto 26px;opacity:.92}
+.names{display:flex;flex-direction:column;gap:11px;text-align:left}
+.fld label{display:block;font-size:.74rem;letter-spacing:.05em;color:var(--foam);margin:0 0 6px 4px}
+.fld input{width:100%;padding:14px 16px;border-radius:13px;background:rgba(4,22,29,.6);
+  border:1px solid rgba(143,201,192,.3);color:var(--sand);font-size:1.05rem;font-family:"Fraunces",serif}
+.fld input::placeholder{color:#6f8a86;font-style:italic}
+.vs{font-family:"DM Mono",monospace;color:var(--coral);letter-spacing:.3em;font-size:.66rem;text-align:center;padding:3px}
+.disclosure{margin-top:14px;border-top:1px solid rgba(143,201,192,.16);padding-top:14px}
+.disclosure summary{list-style:none;cursor:pointer;font-size:.86rem;color:var(--foam);
+  display:flex;align-items:center;justify-content:center;gap:7px;font-family:"DM Mono";letter-spacing:.06em}
+.disclosure summary::-webkit-details-marker{display:none}
+.disclosure[open] summary{margin-bottom:14px}
+.bizlist{display:flex;flex-direction:column;gap:8px;text-align:left}
+.bizitem{display:flex;gap:8px;align-items:center}
+.bizitem input{flex:1;padding:11px 13px;border-radius:11px;background:rgba(4,22,29,.6);
+  border:1px solid rgba(143,201,192,.25);color:var(--sand);font-size:.92rem}
+.bizitem button{flex:none;width:38px;height:38px;border-radius:11px;background:rgba(226,119,106,.16);
+  color:var(--coral);font-size:1.1rem;border:1px solid rgba(226,119,106,.35)}
+.addbiz{margin-top:4px;font-size:.86rem;color:var(--gold);background:none;text-align:left;padding:4px}
+
+/* ===== ROUND INTRO ===== */
+#intro{text-align:center}
+.round-num{font-family:"DM Mono",monospace;font-size:.74rem;letter-spacing:.4em;color:var(--foam);text-transform:uppercase}
+.round-title{font-family:"Fraunces",serif;font-size:clamp(2rem,8vw,2.8rem);line-height:1.05;margin:10px 0 6px;letter-spacing:-.01em}
+.round-desc{color:var(--sand);opacity:.85;font-family:"Fraunces";font-style:italic;max-width:28ch;margin:0 auto 26px;line-height:1.5}
+
+/* ===== HUD ===== */
+.hud{margin-bottom:16px}
+.score-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px}
+.pl{max-width:46%}
+.pl .nm{font-family:"Fraunces",serif;font-size:1rem;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .sc{font-family:"DM Mono",monospace;font-size:1.5rem;line-height:1.1;display:block;margin-top:2px}
+.pl.r{text-align:right}
+.p1 .nm,.p1 .sc{color:var(--gold)}
+.p2 .nm,.p2 .sc{color:var(--coral)}
+.streak{font-size:.74rem;font-family:"DM Mono";color:var(--gold-lt);opacity:0;transition:opacity .3s;height:14px}
+.streak.on{opacity:1}
+.tide-track{position:relative;height:9px;border-radius:99px;background:rgba(4,22,29,.7);
+  border:1px solid rgba(143,201,192,.2);overflow:hidden}
+.tide-fill{position:absolute;top:0;left:0;height:100%;width:50%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-lt));border-radius:99px;
+  transition:width .8s cubic-bezier(.3,.7,.2,1)}
+.tide-track::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 50%,rgba(226,119,106,.4));pointer-events:none}
+
+.bar2{display:flex;justify-content:space-between;align-items:center;margin:14px 0 4px;
+  font-family:"DM Mono",monospace;font-size:.76rem;letter-spacing:.05em;color:var(--sand-dim)}
+.turn-pill{padding:5px 13px;border-radius:99px;font-weight:600;font-family:"DM Sans";font-size:.82rem;letter-spacing:0}
+.turn-pill.p1{background:rgba(242,189,104,.16);color:var(--gold);border:1px solid rgba(242,189,104,.42)}
+.turn-pill.p2{background:rgba(226,119,106,.16);color:var(--coral);border:1px solid rgba(226,119,106,.42)}
+
+/* timer ring */
+.timer{display:flex;align-items:center;gap:8px}
+.ring{width:30px;height:30px;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:rgba(143,201,192,.2);stroke-width:4}
+.ring .fg{fill:none;stroke:var(--foam);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:81.68;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear, stroke .3s}
+.tnum{font-family:"DM Mono";font-size:.82rem;color:var(--foam);min-width:16px}
+
+/* ===== QUESTION ===== */
+.cat-tag{display:inline-block;font-family:"DM Mono",monospace;font-size:.66rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--foam);border:1px solid rgba(143,201,192,.32);
+  border-radius:99px;padding:4px 11px;margin-bottom:15px}
+.qtext{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(1.4rem,5.2vw,1.9rem);
+  line-height:1.2;letter-spacing:-.01em}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.opt{width:100%;text-align:left;padding:15px 16px;border-radius:13px;background:rgba(4,22,29,.45);
+  border:1px solid rgba(143,201,192,.22);color:var(--sand);font-size:1rem;line-height:1.34;
+  transition:border-color .14s,background .14s,transform .1s;display:flex;gap:12px;align-items:flex-start}
+.opt .key{font-family:"DM Mono",monospace;color:var(--foam);font-size:.92rem;flex:none;margin-top:1px}
+.opt:hover:not(:disabled){border-color:var(--gold);background:rgba(18,69,78,.55)}
+.opt:active:not(:disabled){transform:scale(.99)}
+.opt.correct{border-color:var(--ok);background:rgba(123,199,154,.18)}
+.opt.correct .key{color:var(--ok)}
+.opt.wrong{border-color:var(--coral);background:rgba(226,119,106,.15)}
+.opt.wrong .key{color:var(--coral)}
+.opt:disabled{cursor:default}
+
+/* true/false big buttons */
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.tf button{padding:26px 14px;border-radius:16px;font-family:"Fraunces",serif;font-size:1.3rem;
+  border:1px solid rgba(143,201,192,.28);background:rgba(4,22,29,.5);color:var(--sand);
+  transition:transform .1s,border-color .14s,background .14s}
+.tf button:hover:not(:disabled){border-color:var(--gold);background:rgba(18,69,78,.55)}
+.tf button:active:not(:disabled){transform:scale(.97)}
+.tf button.correct{border-color:var(--ok);background:rgba(123,199,154,.2)}
+.tf button.wrong{border-color:var(--coral);background:rgba(226,119,106,.18)}
+.tf .ic{display:block;font-size:1.7rem;margin-bottom:4px}
+
+/* biz */
+.biz-reveal{margin-top:18px;padding:15px 17px;border-radius:13px;background:rgba(242,189,104,.1);
+  border:1px dashed rgba(242,189,104,.42);font-family:"Fraunces",serif;font-style:italic;
+  color:var(--sand);line-height:1.5;display:none}
+.biz-reveal.show{display:block;animation:fadein .4s both}
+.judge{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.judge.show{display:grid}
+.judge .btn{font-size:.95rem;padding:14px}
+.btn.yes{background:linear-gradient(180deg,#9ad9b3,var(--ok));color:#05201a;box-shadow:none}
+.btn.no{background:rgba(245,236,219,.06);color:var(--sand);border:1px solid rgba(226,119,106,.5);box-shadow:none}
+
+.feedback{margin-top:18px;text-align:center;min-height:24px;font-family:"Fraunces",serif;
+  font-style:italic;font-size:1.05rem}
+.feedback.good{color:var(--gold-lt)}
+.feedback.bad{color:var(--coral)}
+.next-row{margin-top:16px;display:none}
+.next-row.show{display:block;animation:fadein .35s both}
+
+/* floating score pop */
+.pop{position:fixed;left:50%;top:42%;transform:translateX(-50%);z-index:40;pointer-events:none;
+  font-family:"Fraunces",serif;font-weight:600;font-size:2.4rem;opacity:0}
+.pop.go{animation:pop 1s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}
+  18%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}
+  60%{opacity:1}100%{opacity:0;transform:translate(-50%,-60px) scale(1)}}
+
+/* ===== RESULTS ===== */
+#results{text-align:center}
+.result-sub{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--foam);margin-bottom:10px}
+#results .wordmark{font-size:clamp(2.2rem,9vw,3.1rem);margin:4px 0}
+.final{display:flex;justify-content:center;gap:22px;align-items:flex-end;margin:18px 0 20px}
+.final .col{display:flex;flex-direction:column;gap:3px}
+.final .nm{font-family:"Fraunces",serif;font-size:1.05rem}
+.final .vl{font-family:"DM Mono",monospace;font-size:2.5rem;line-height:1}
+.final .dash{font-family:"DM Mono";font-size:1.4rem;color:var(--sand-dim);align-self:center}
+.verdict{font-family:"Fraunces",serif;font-style:italic;font-size:1.12rem;line-height:1.55;
+  color:var(--sand);max-width:32ch;margin:0 auto 22px}
+.countbox{border-top:1px solid rgba(143,201,192,.18);padding-top:18px;margin-top:4px}
+.countbox label{display:block;font-size:.76rem;color:var(--foam);letter-spacing:.05em;margin-bottom:8px;font-family:"DM Mono"}
+.countbox input{padding:11px 14px;border-radius:12px;background:rgba(4,22,29,.6);
+  border:1px solid rgba(143,201,192,.3);color:var(--sand);font-size:1rem;font-family:"DM Sans";width:200px}
+.countdays{margin-top:14px;font-family:"Fraunces",serif;font-style:italic;font-size:1.05rem;color:var(--gold-lt);min-height:24px}
+#restartBtn{margin-top:22px}
+
+/* petals */
+.petal{position:fixed;top:-20px;z-index:30;pointer-events:none;border-radius:60% 0 60% 0;
+  background:linear-gradient(180deg,var(--coral),var(--dusk));opacity:.85}
+
+/* sound toggle */
+.sound-btn{position:fixed;top:14px;right:14px;z-index:50;width:42px;height:42px;border-radius:50%;
+  background:rgba(4,22,29,.55);border:1px solid rgba(143,201,192,.3);color:var(--foam);
+  font-size:1.05rem;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
+.credit{text-align:center;margin-top:18px;font-family:"DM Mono",monospace;font-size:.6rem;
+  letter-spacing:.25em;color:rgba(245,236,219,.4);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="sun"></div>
+<div class="sea">
+  <div class="glint"></div>
+  <svg class="swave s3" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 C240,72 480,8 720,40 C960,72 1200,8 1440,40 L1440,80 L0,80 Z"/></svg>
+  <svg class="swave s2" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,46 C300,14 600,74 900,42 C1140,18 1320,60 1440,42 L1440,80 L0,80 Z"/></svg>
+  <svg class="swave s1" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,52 C240,78 480,30 720,52 C960,72 1200,30 1440,52 L1440,80 L0,80 Z"/></svg>
+</div>
+
+<button class="sound-btn" id="soundBtn" title="Ses aç/kapat" aria-label="Ses">♪</button>
+
+<div class="stage">
+
+  <!-- ===== WELCOME ===== -->
+  <section id="welcome" class="screen active">
+    <div style="text-align:center">
+      <div class="eyebrow">Gel-Git Gecesi · İki Kişilik</div>
+      <h1 class="wordmark">Med<em>cezir</em></h1>
+      <p class="tagline">Aramızda bir deniz var. Bu gece sırayla cevaplıyoruz; gelgit kimin kıyısına vuracak, görelim.</p>
+    </div>
+    <div class="card">
+      <div class="names">
+        <div class="fld"><label>1. Oyuncu</label><input id="p1name" maxlength="14" placeholder="senin adın" autocomplete="off"></div>
+        <div class="vs">— karşı kıyı —</div>
+        <div class="fld"><label>2. Oyuncu</label><input id="p2name" maxlength="14" placeholder="onun adı" autocomplete="off"></div>
+      </div>
+
+      <details class="disclosure">
+        <summary>“Biz” turunu ikinize özel yap ✎</summary>
+        <div class="bizlist" id="bizlist"></div>
+        <button class="addbiz" id="addBiz">+ soru ekle</button>
+      </details>
+
+      <button id="startBtn" class="btn" style="margin-top:18px">Gece Başlasın</button>
+    </div>
+    <div class="credit">Med · Cezir · ikimiz için</div>
+  </section>
+
+  <!-- ===== ROUND INTRO ===== -->
+  <section id="intro" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="round-num" id="roundNum">1. Tur</div>
+      <div class="round-title" id="roundTitle">—</div>
+      <div class="round-desc" id="roundDesc">—</div>
+      <button class="btn" id="introBtn">Dalgaya Atla →</button>
+    </div>
+  </section>
+
+  <!-- ===== QUIZ ===== -->
+  <section id="quiz" class="screen">
+    <div class="hud">
+      <div class="score-row">
+        <div class="pl p1"><span class="nm" id="lblP1">Sen</span><span class="sc" id="scP1">0</span><span class="streak" id="stP1">🔥 ×2</span></div>
+        <div class="pl p2 r"><span class="nm" id="lblP2">O</span><span class="sc" id="scP2">0</span><span class="streak" id="stP2">🔥 ×2</span></div>
+      </div>
+      <div class="tide-track"><div class="tide-fill" id="tideFill"></div></div>
+    </div>
+
+    <div class="bar2">
+      <span id="progress">1 / 18</span>
+      <div class="timer"><svg class="ring" viewBox="0 0 30 30"><circle class="bg" cx="15" cy="15" r="13"/><circle class="fg" id="ringFg" cx="15" cy="15" r="13"/></svg><span class="tnum" id="tnum">15</span></div>
+      <span class="turn-pill p1" id="turnPill">Sıra: Sen</span>
+    </div>
+
+    <div class="card">
+      <span class="cat-tag" id="catTag">Bilgi</span>
+      <div class="qtext" id="qtext">—</div>
+      <div class="opts" id="opts"></div>
+      <div class="biz-reveal" id="bizReveal"></div>
+      <div class="judge" id="judge">
+        <button class="btn yes" id="judgeYes">Bildi ✓</button>
+        <button class="btn no" id="judgeNo">Bilemedi ✕</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="next-row" id="nextRow"><button class="btn" id="nextBtn">Sıradaki Dalga →</button></div>
+    </div>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section id="results" class="screen">
+    <div class="card">
+      <div class="result-sub">Gelgit durdu</div>
+      <h2 class="wordmark" id="winnerName">—</h2>
+      <div class="final">
+        <div class="col"><span class="nm p1" id="finP1n">Sen</span><span class="vl p1" id="finP1">0</span></div>
+        <span class="dash">/</span>
+        <div class="col"><span class="nm p2" id="finP2n">O</span><span class="vl p2" id="finP2">0</span></div>
+      </div>
+      <p class="verdict" id="verdict">—</p>
+      <div class="countbox">
+        <label>Bir sonraki buluşmamız (kavuşmaya kaç gün?)</label>
+        <input type="date" id="reunion">
+        <div class="countdays" id="countdays"></div>
+      </div>
+      <button class="btn ghost" id="restartBtn">Yeni bir gece →</button>
+      <div style="margin-top:14px;border-top:1px solid rgba(143,201,192,.18);padding-top:18px">
+        <div style="font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--foam);margin-bottom:10px">Sıradaki Macera</div>
+        <a href="ates-ve-su.html" id="nextGameBtn" style="
+          display:flex;align-items:center;justify-content:space-between;gap:14px;
+          padding:16px 20px;border-radius:16px;text-decoration:none;
+          background:linear-gradient(110deg,#b6471f 0%,#ef6f3c 44%,#1c6f9e 56%,#41b6e6 100%);
+          color:#fff;font-family:'Fraunces',serif;font-size:1.15rem;font-weight:500;
+          box-shadow:0 14px 36px -10px rgba(0,0,0,.5);
+          transition:transform .15s,filter .15s">
+          <span>
+            <span style="display:block;font-size:.72rem;font-family:'DM Mono',monospace;letter-spacing:.15em;text-transform:uppercase;opacity:.85;margin-bottom:3px">Bölüm 2</span>
+            🔥 Ateş &amp; Su — Tapınak 💧
+          </span>
+          <span style="font-size:1.5rem">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   SORU BANKASI  —  istediğin gibi düzenle.
+   ROUNDS dizisi: her tur bir bölüm.
+     type:"secmeli"  → şıklı (dogru = doğru şıkkın sırası, 0'dan başlar)
+     type:"dogruyanlis" → cevap:true / false
+     type:"biz" → ikinize özel, kendiniz puanlarsınız (cevap: ipucu metni)
+   "Biz" sorularını açılış ekranındaki ✎ menüsünden de düzenleyebilirsin.
+   ============================================================ */
+const ROUNDS = [
+  {
+    title:"Bilgi Turu", desc:"Altınkoy'u ne kadar tanıyoruz? Hızlı cevapla, fazladan puan kap.",
+    sec:15, pick:10,
+    items:[
+      {type:"secmeli", kategori:"Oyuncular", soru:"Yaman Koper'i hangi oyuncu canlandırdı?",
+        secenekler:["Çağatay Ulusoy","Kıvanç Tatlıtuğ","Burak Deniz","Aras Bulut İynemli"], dogru:0},
+      {type:"secmeli", kategori:"Oyuncular", soru:"Mira Beylice'yi hangi oyuncu canlandırdı?",
+        secenekler:["Hande Erçel","Serenay Sarıkaya","Fahriye Evcen","Hazar Ergüçlü"], dogru:1},
+      {type:"secmeli", kategori:"Dizi", soru:"Medcezir hangi yabancı diziden uyarlandı?",
+        secenekler:["Gossip Girl","Skins","The O.C.","One Tree Hill"], dogru:2},
+      {type:"secmeli", kategori:"Karakterler", soru:"Yaman'a sahip çıkıp evine alan avukat kimdir?",
+        secenekler:["Selim Serez","Orkun Civaner","Faruk Beylice","Asım Şekip Kaya"], dogru:0},
+      {type:"secmeli", kategori:"Oyuncular", soru:"Mert Serez'i hangi oyuncu canlandırdı?",
+        secenekler:["Metin Akdülger","Taner Ölmez","Boran Kuzum","Alperen Duymaz"], dogru:1},
+      {type:"secmeli", kategori:"Oyuncular", soru:"Mira'nın en yakın arkadaşı Eylül'ü kim oynadı?",
+        secenekler:["Hazar Ergüçlü","Miray Daner","Özge Gürel","Aslıhan Malbora"], dogru:0},
+      {type:"secmeli", kategori:"Kelime", soru:'"Medcezir" ne demek?',
+        secenekler:["Gel-git (deniz hareketi)","Uzak deniz","Yaz aşkı","Kıyı kasabası"], dogru:0},
+      {type:"secmeli", kategori:"Mekan", soru:"Hikâyenin geçtiği zengin sahil semti hangisi?",
+        secenekler:["Altınkoy","Yıldızkent","Mavişehir","Denizköy"], dogru:0},
+      {type:"secmeli", kategori:"Müzik", soru:"Medcezir'in dizi/jenerik müziğini hangi besteci yaptı?",
+        secenekler:["Toygar Işıklı","Tamer Çıray","Aytekin Ataş","Cem Tuncer"], dogru:0},
+      {type:"secmeli", kategori:"Dizi", soru:"Medcezir kaç sezon sürdü?",
+        secenekler:["1","2","3","4"], dogru:1},
+      {type:"secmeli", kategori:"Karakterler", soru:"Yaman'ın ağabeyinin adı nedir?",
+        secenekler:["Kenan","Mert","Orkun","Burak"], dogru:0},
+      {type:"secmeli", kategori:"Karakterler", soru:"Yaman hangi mahallede büyüdü?",
+        secenekler:["Tozludere","Altınkoy","Tarlabaşı","Kasımpaşa"], dogru:0},
+      {type:"secmeli", kategori:"Karakterler", soru:"Mira'nın soyadı nedir?",
+        secenekler:["Beylice","Serez","Koper","Civaner"], dogru:0},
+      {type:"secmeli", kategori:"Karakterler", soru:"Mira'nın kontrolcü, hesapçı annesinin adı nedir?",
+        secenekler:["Sude","Ender","Sedef","Leyla"], dogru:0},
+      {type:"secmeli", kategori:"Yapım", soru:"Medcezir hangi yıl yayınlanmaya başladı?",
+        secenekler:["2011","2012","2013","2015"], dogru:2},
+      {type:"secmeli", kategori:"Karakterler", soru:"Yaman ile Mert arasındaki ilişki nedir?",
+        secenekler:["Kardeş gibi yakın dostlar","Düşmanlar","Kuzenler","Hiç tanışmazlar"], dogru:0},
+    ]
+  },
+  {
+    title:"Doğru mu, Yanlış mı?", desc:"Tek nefeslik kararlar. Süre kısa, sezgine güven.",
+    sec:8, pick:9,
+    items:[
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Medcezir, The O.C. dizisinden uyarlandı.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Yaman, zengin bir ailenin çocuğu olarak büyüdü.", cevap:false},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Selim Serez mesleği gereği bir doktordur.", cevap:false},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Orkun, Mira'nın eski sevgilisidir.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Dizi Star TV'de yayınlandı.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Hikâye Altınkoy adlı sahil semtinde geçer.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Dizinin müziklerini Toygar Işıklı besteledi.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Medcezir toplam 77 bölüm sürdü.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Yaman'ın ağabeyinin adı Kenan'dır.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Mira'nın soyadı Koper'dir.", cevap:false},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Mira ile Yaman dizinin merkezindeki çifttir.", cevap:true},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Medcezir ikiden fazla sezon sürdü.", cevap:false},
+      {type:"dogruyanlis", kategori:"Hızlı", soru:"Yaman, kenar mahallede büyümüş çalışkan bir gençtir.", cevap:true},
+    ]
+  },
+  {
+    title:"Biz Turu", desc:"Süre yok, baskı yok. Cevabı açıp birbirinize bakın — doğru hatırlayan puanı alır.",
+    sec:0, fill:"biz", pick:5,
+    items:[ /* açılıştaki ✎ menüsü buraya yazar; boşsa aşağıdaki varsayılanlar gelir */ ]
+  }
+];
+
+const DEFAULT_BIZ = [
+  "İlk mesajlaşmamızda kim ilk yazdı?",
+  "Birlikte izlediğimiz ilk Medcezir bölümü/sahnesi hangisiydi?",
+  "Tahmin et: karşındakinin en sevdiği Medcezir karakteri kim?",
+  "İlk nerede buluştuk / nerede buluşmayı planlıyoruz?",
+  "Karşındakini ilk gördüğünde aklından geçen ilk şey neydi?",
+  "İkimizin 'bizim şarkımız' dediği bir parça var mı, hangisi?",
+  "Bir sonraki tatilde birlikte nereye gitmek isteriz?",
+  "Tahmin et: karşındakinin en sevmediği yemek ne?"
+];
+
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+const GOOD=["Gelgit senden yana 🌊","Tam isabet ✨","Sahil senin ☀️","Dalga seni taşıdı 💛","Su seviyesi yükseliyor 🌅"];
+const BAD =["Bu dalga kaçtı 🌫️","Cezir vakti… 🐚","Olsun, deniz geniş 🌊","Bir sonraki gelgitte 💫"];
+
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+/* ---------- sound (Web Audio, dosyasız) ---------- */
+let soundOn=store.get('snd')!==false, AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}return AC}
+function tone(f,d,t,v){if(!soundOn)return;const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain();
+  o.type=t||'sine';o.frequency.value=f;g.gain.value=0;o.connect(g);g.connect(c.destination);
+  const n=c.currentTime;g.gain.linearRampToValueAtTime(v||.12,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+d);
+  o.start(n);o.stop(n+d)}
+function sCorrect(){tone(523,.12,'sine',.13);setTimeout(()=>tone(784,.22,'sine',.12),90)}
+function sWrong(){tone(180,.28,'sawtooth',.09)}
+function sTick(){tone(440,.04,'square',.04)}
+function sWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.3,'triangle',.12),i*120))}
+$('soundBtn').onclick=()=>{soundOn=!soundOn;store.set('snd',soundOn);$('soundBtn').textContent=soundOn?'♪':'×';if(soundOn)tone(660,.1)};
+$('soundBtn').textContent=soundOn?'♪':'×';
+
+/* ---------- biz editor ---------- */
+let bizQs=store.get('biz')||DEFAULT_BIZ.slice();
+function renderBiz(){
+  const w=$('bizlist');w.innerHTML='';
+  bizQs.forEach((q,i)=>{
+    const row=document.createElement('div');row.className='bizitem';
+    const inp=document.createElement('input');inp.value=q;inp.placeholder='ikinize özel bir soru…';
+    inp.oninput=()=>{bizQs[i]=inp.value};
+    const del=document.createElement('button');del.textContent='×';del.title='sil';
+    del.onclick=()=>{bizQs.splice(i,1);renderBiz()};
+    row.append(inp,del);w.appendChild(row);
+  });
+}
+$('addBiz').onclick=()=>{bizQs.push('');renderBiz();$('bizlist').lastChild.querySelector('input').focus()};
+renderBiz();
+
+/* ---------- game state ---------- */
+let players=["Sen","O"],scores=[0,0],streak=[0,0],turn=0;
+let seq=[],idx=0,answered=false,curRound=-1;
+let timer=null,timeLeft=0,timeDur=0;
+const RING_C=2*Math.PI*13;
+
+function buildSeq(){
+  // "Biz" turunu (fill:"biz" işaretli tur) açılış menüsündeki sorularla doldur
+  const bizRound = ROUNDS.find(r=>r.fill==="biz");
+  if(bizRound){
+    const qs = bizQs.filter(q=>q.trim()).length ? bizQs.filter(q=>q.trim()) : DEFAULT_BIZ;
+    bizRound.items = qs.map(q=>({type:"biz",kategori:"Biz",soru:q,cevap:"Doğru hatırlayan puanı alır — birbirinize sorun."}));
+  }
+  // her turdan rastgele "pick" kadar soru seç (yoksa hepsi). Her oyun farklı olur.
+  seq=[];
+  ROUNDS.forEach((r,ri)=>{
+    let items=r.items.slice();
+    items.sort(()=>Math.random()-.5);
+    if(r.pick && r.pick<items.length) items=items.slice(0,r.pick);
+    items.forEach(it=>seq.push({round:ri,sec:r.sec,data:it}));
+  });
+}
+
+$('startBtn').onclick=()=>{
+  players=[$('p1name').value.trim()||"Sen", $('p2name').value.trim()||"Aşkım"];
+  store.set('biz',bizQs);
+  scores=[0,0];streak=[0,0];turn=0;idx=0;curRound=-1;
+  $('lblP1').textContent=players[0];$('lblP2').textContent=players[1];
+  $('finP1n').textContent=players[0];$('finP2n').textContent=players[1];
+  buildSeq();
+  advance();
+};
+$('p2name').addEventListener('keydown',e=>{if(e.key==='Enter')$('startBtn').click()});
+
+function advance(){
+  if(idx>=seq.length){finish();return;}
+  const step=seq[idx];
+  if(step.round!==curRound){ // yeni tur → intro
+    curRound=step.round;
+    const r=ROUNDS[curRound];
+    $('roundNum').textContent=(curRound+1)+". Tur";
+    $('roundTitle').textContent=r.title;
+    $('roundDesc').textContent=r.desc;
+    show('intro');
+    return;
+  }
+  show('quiz');render();
+}
+$('introBtn').onclick=()=>{show('quiz');render()};
+
+function updateTide(){
+  $('scP1').textContent=scores[0];$('scP2').textContent=scores[1];
+  const t=scores[0]+scores[1];
+  $('tideFill').style.width=(t===0?50:(scores[0]/t)*100)+'%';
+  [0,1].forEach(p=>{const el=$(p?'stP2':'stP1');
+    if(streak[p]>=2){el.textContent='🔥 ×'+mult(p).toFixed(2).replace(/\.?0+$/,'');el.classList.add('on')}
+    else el.classList.remove('on')});
+}
+function mult(p){const s=streak[p];return s>=4?2:s>=3?1.5:s>=2?1.25:1}
+
+function startTimer(sec){
+  stopTimer();if(sec<=0){$('tnum').textContent='∞';$('ringFg').style.strokeDashoffset=0;$('ringFg').style.stroke='var(--foam)';return;}
+  timeDur=sec;timeLeft=sec;
+  $('ringFg').setAttribute('stroke-dasharray',RING_C);
+  const tick=()=>{
+    $('tnum').textContent=Math.ceil(timeLeft);
+    const frac=timeLeft/timeDur;
+    $('ringFg').style.strokeDashoffset=RING_C*(1-frac);
+    $('ringFg').style.stroke = frac<.3?'var(--coral)':frac<.6?'var(--gold)':'var(--foam)';
+    if(timeLeft<=3.001 && Math.abs(timeLeft-Math.round(timeLeft))<.06 && timeLeft>0) sTick();
+    if(timeLeft<=0){stopTimer();timeUp();return;}
+    timeLeft-=.1;
+  };
+  tick();timer=setInterval(tick,100);
+}
+function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+function timeUp(){if(answered)return;answered=true;
+  const q=seq[idx].data;
+  if(q.type==='secmeli'){document.querySelectorAll('.opt').forEach((o,j)=>{o.disabled=true;if(j===q.dogru)o.classList.add('correct')});}
+  if(q.type==='dogruyanlis'){document.querySelectorAll('.tf button').forEach(b=>{b.disabled=true;if((b.dataset.v==='1')===q.cevap)b.classList.add('correct')});}
+  resolve(false,0);
+}
+
+function render(){
+  answered=false;
+  const step=seq[idx],q=step.data;
+  updateTide();
+  $('progress').textContent=(idx+1)+' / '+seq.length;
+  const pill=$('turnPill');pill.textContent='Sıra: '+players[turn];pill.className='turn-pill '+(turn?'p2':'p1');
+  $('catTag').textContent=q.kategori;
+  $('qtext').textContent=q.soru;
+  $('feedback').textContent='';$('feedback').className='feedback';
+  $('nextRow').classList.remove('show');
+  $('bizReveal').classList.remove('show');$('judge').classList.remove('show');
+  const opts=$('opts');opts.innerHTML='';
+
+  if(q.type==='secmeli'){
+    q.secenekler.forEach((txt,i)=>{
+      const b=document.createElement('button');b.className='opt';
+      b.innerHTML='<span class="key">'+String.fromCharCode(65+i)+'</span><span>'+txt+'</span>';
+      b.onclick=()=>pickMC(i,q);opts.appendChild(b);
+    });
+  } else if(q.type==='dogruyanlis'){
+    const wrap=document.createElement('div');wrap.className='tf';
+    [['1','✓','Doğru'],['0','✕','Yanlış']].forEach(([v,ic,lb])=>{
+      const b=document.createElement('button');b.dataset.v=v;
+      b.innerHTML='<span class="ic">'+ic+'</span>'+lb;
+      b.onclick=()=>pickTF(v==='1',q);wrap.appendChild(b);
+    });
+    opts.appendChild(wrap);
+  } else { // biz
+    const b=document.createElement('button');b.className='btn ghost';b.textContent='Cevabı aç & puanla';
+    b.onclick=()=>{$('bizReveal').textContent=q.cevap;$('bizReveal').classList.add('show');$('judge').classList.add('show');b.style.display='none'};
+    opts.appendChild(b);
+  }
+  startTimer(step.sec);
+}
+
+function pickMC(i,q){
+  if(answered)return;answered=true;stopTimer();
+  document.querySelectorAll('.opt').forEach((o,j)=>{o.disabled=true;
+    if(j===q.dogru)o.classList.add('correct');if(j===i&&i!==q.dogru)o.classList.add('wrong')});
+  resolve(i===q.dogru, timeBonus());
+}
+function pickTF(val,q){
+  if(answered)return;answered=true;stopTimer();
+  document.querySelectorAll('.tf button').forEach(b=>{b.disabled=true;
+    const bv=b.dataset.v==='1';if(bv===q.cevap)b.classList.add('correct');
+    else if(bv===val)b.classList.add('wrong')});
+  resolve(val===q.cevap, timeBonus());
+}
+$('judgeYes').onclick=()=>{if(!answered){answered=true;resolve(true,0)}};
+$('judgeNo').onclick=()=>{if(!answered){answered=true;resolve(false,0)}};
+
+function timeBonus(){if(timeDur<=0)return 0;return Math.round(50*Math.max(0,timeLeft)/timeDur)}
+
+function resolve(correct,bonus){
+  const fb=$('feedback');
+  if(correct){
+    streak[turn]++;
+    const m=mult(turn);
+    const gained=Math.round((100+bonus)*m);
+    scores[turn]+=gained;
+    fb.textContent=GOOD[Math.floor(Math.random()*GOOD.length)];fb.className='feedback good';
+    popScore('+'+gained,turn);sCorrect();
+  }else{
+    streak[turn]=0;
+    fb.textContent=BAD[Math.floor(Math.random()*BAD.length)];fb.className='feedback bad';
+    sWrong();
+  }
+  updateTide();
+  $('judge').classList.remove('show');
+  $('nextRow').classList.add('show');
+}
+
+function popScore(txt,p){
+  const el=document.createElement('div');el.className='pop';el.textContent=txt;
+  el.style.color=p?'var(--coral)':'var(--gold)';document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('go'));
+  setTimeout(()=>el.remove(),1100);
+}
+
+$('nextBtn').onclick=()=>{stopTimer();idx++;turn=1-turn;advance()};
+
+function finish(){
+  stopTimer();show('results');sWin();
+  $('finP1').textContent=scores[0];$('finP2').textContent=scores[1];
+  const w=$('winnerName'),v=$('verdict');
+  if(scores[0]>scores[1]){w.innerHTML=players[0]+' <em style="color:var(--gold)">önde</em>';
+    v.textContent='Bu gelgitte kıyı '+players[0]+"'den yana çekildi. Ama asıl kazanan, aynı diziyi sevip aynı geceyi paylaşan ikiniz.";}
+  else if(scores[1]>scores[0]){w.innerHTML=players[1]+' <em style="color:var(--coral)">önde</em>';
+    v.textContent='Bu gelgitte deniz '+players[1]+"'i taşıdı. Ama asıl kazanan, kilometrelere rağmen aynı kıyıda buluşan ikiniz.";}
+  else{w.innerHTML='<em>Tam denge</em>';
+    v.textContent='Med ve cezir gibi kusursuz bir denge. İkiniz de aynı anda kazandınız — mesele zaten birlikte oynamaktı.';}
+  petals();
+}
+
+function petals(){
+  for(let i=0;i<26;i++){
+    const p=document.createElement('div');p.className='petal';
+    const s=6+Math.random()*10;p.style.width=s+'px';p.style.height=s+'px';
+    p.style.left=Math.random()*100+'vw';
+    const dur=4+Math.random()*4,delay=Math.random()*3;
+    p.style.animation='petalfall '+dur+'s linear '+delay+'s forwards';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),(dur+delay)*1000+200);
+  }
+}
+const style=document.createElement('style');
+style.textContent='@keyframes petalfall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.85}100%{transform:translateY(105vh) rotate(420deg);opacity:0}}';
+document.head.appendChild(style);
+
+$('reunion').onchange=()=>{
+  const d=new Date($('reunion').value);if(isNaN(d)){$('countdays').textContent='';return}
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  $('countdays').textContent = diff>0 ? ('Kavuşmaya '+diff+' gün 🌅') : diff===0 ? 'Bugün! 💛' : 'O gün çoktan geldi 💫';
+};
+
+$('restartBtn').onclick=()=>{
+  document.querySelectorAll('.petal').forEach(p=>p.remove());
+  $('p1name').value=players[0]==='Sen'?'':players[0];
+  $('p2name').value=players[1]==='Aşkım'?'':players[1];
+  show('welcome');
+};
+</script>
+</body>
+</html>
