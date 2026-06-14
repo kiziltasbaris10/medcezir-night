@@ -336,6 +336,11 @@ function frame(t){
 /* ===================== NETWORK ===================== */
 let peer=null, conn=null, lastSend=0;
 function send(m){ if(conn&&conn.open) conn.send(m); }
+function clearLevel(){
+  if(state!=='play')return;
+  if(level>=LEVELS.length-1){state='win';showWin();}
+  else{state='levelclear';showClear();}
+}
 function netSend(){
   const now=performance.now();
   if(now-lastSend<33)return; lastSend=now;
