@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ateş & Su · Tapınak (Online)</title>
+<title>Barış & Su · Tapınak (Online)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400&family=DM+Sans:opsz,wght@9..40,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -84,7 +84,7 @@ canvas{display:block;width:100%;height:auto}
 <body>
 <div class="wrap">
   <div class="hud">
-    <div class="title"><span class="a">Ateş</span> &amp; <span class="s">Su</span></div>
+    <div class="title"><span class="a">Barış</span> &amp; <span class="s">Su</span></div>
     <div class="gems">
       <span class="gemc red"><span class="d"></span><span id="redLeft">0</span></span>
       <span class="gemc blue"><span class="d"></span><span id="blueLeft">0</span></span>
@@ -101,7 +101,7 @@ canvas{display:block;width:100%;height:auto}
 
     <!-- in-game phase overlay -->
     <div class="overlay" id="overlay">
-      <h2 id="ovTitle">Ateş &amp; Su</h2>
+      <h2 id="ovTitle">Barış &amp; Su</h2>
       <p id="ovText"></p>
       <div class="keys" id="ovKeys">
         <div class="keycol fire"><span class="who">ATEŞ 🔥</span>
@@ -141,8 +141,27 @@ const LEVELS = [
   ["####################","#                  #","#                  #","#                  #","#     r       b    #","#    ###  G  ###   #","#wF AA    G LL B Wf#","####################"],
   ["####################","#                  #","#                  #","#                  #","#    r          b  #","#   ### G      ### #","#wF B PPG LL AA Wf #","####################"],
   ["####################","#                  #","#                  #","#                  #","#   r          b   #","#  ###  G     ###  #","#wFB AA G PP LL Wf #","####################"],
+
+  // Bölüm 8 — Çift Koridor
+  ["####################",
+   "#                  #",
+   "#  r  ######  b    #",
+   "#     #    #       #",
+   "# ### #    # ###   #",
+   "#   # #    # #     #",
+   "#wF # #BLLG# # A Wf#",
+   "####################"],
+
+  // Bölüm 9 — Köprü
+  ["####################","#                  #","#                  #","#  r          b    #","# ###  B   G  ###  #","# ###        ###   #","#wF LL      AA  Wf #","####################"],
+  // Bölüm 10 — Merkez Kapı
+  ["####################","#                  #","#                  #","#   r        b     #","# ##### G #####    #","#       B          #","#wF  LL  AA     Wf #","####################"],
+  // Bölüm 11 — Dört Hazine
+  ["####################","#  r   b    r   b  #","#                  #","# ##  ###  ###  ## #","# ##  # BG  #   ## #","#     #     #      #","#wF   L  G  A   Wf #","####################"],
+  // Bölüm 12 — Son Kale
+  ["####################","#                  #","#r  b   r   b   r b#","####  #   #   #  ###","#     # B # G #    #","#     #   #   #    #","#wF  LL   G  AA Wf #","####################"],
 ];
-const TS=40, GRAV=2000, JUMP=620, SPD=190, ACC=2600, FRIC=2400, MAXFALL=900;
+const TS=40, GRAV=1500, JUMP=820, SPD=210, ACC=2800, FRIC=2200, MAXFALL=900;
 
 const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
 let cols,rows,grid,base,players,gateOpen,redLeft,blueLeft,level=0;
@@ -389,7 +408,7 @@ const netDiv=document.getElementById('net'), netBody=document.getElementById('ne
 function netMenu(){
   netDiv.classList.add('show');
   netBody.innerHTML=`
-    <h2><span style="color:var(--fire2)">Ateş</span> &amp; <span style="color:var(--water2)">Su</span></h2>
+    <h2><span style="color:var(--fire2)">Barış</span> &amp; <span style="color:var(--water2)">Su</span></h2>
     <p>Birlikte mi, uzaktan mı oynayacaksınız?</p>
     <div class="btnrow">
       <button class="btn" id="mLocal">Aynı bilgisayar (2 kişi)</button>
@@ -453,7 +472,7 @@ function hostRoom(){
   netBody.innerHTML=`
     <h2>Oda kodun</h2>
     <div class="code">${code}</div>
-    <p>Bu kodu ya da aşağıdaki linki sevgiline gönder. O katılınca oyun başlayacak.</p>
+    <p>Bu kodu ya da aşağıdaki linki sevgiliye gönder. O katılınca oyun başlayacak.</p>
     <div class="btnrow">
       <button class="btn" id="cpCode">Kodu kopyala</button>
       <button class="btn cool" id="cpLink">Linki kopyala</button>
@@ -570,7 +589,7 @@ function updateHud(){document.getElementById('redLeft').textContent=Math.max(0,r
   document.getElementById('lvlLabel').textContent='Bölüm '+(level+1);}
 
 function showStart(){
-  showOverlay('<span style="color:var(--fire2)">Ateş</span> &amp; <span style="color:var(--water2)">Su</span>',
+  showOverlay('<span style="color:var(--fire2)">Barış</span> &amp; <span style="color:var(--water2)">Su</span>',
     'Elmasları toplayıp her ikinizi de kendi kapısına ulaştırın. 🔥 kırmızı, 💧 mavi elmasları toplar. Kaldıraçlar kapıları açar.',
     'Başla',true,false,()=>{level=0;loadLevel(0);state='play';hideOverlay();});
 }
@@ -591,7 +610,7 @@ function showWin(){
   if(mode==='online'&&role==='guest')
     showOverlay('Tapınak sizin! 🏆','Tüm bölümleri birlikte geçtiniz.','Baştan oyna',false,true,()=>send({t:'next'}));
   else
-    showOverlay('Tapınak sizin! 🏆','Tüm bölümleri birlikte geçtiniz. Uzaktan da olsa iyi bir ekipsiniz.','Baştan oyna',false,true,()=>{ if(mode==='online')hostNext(); else {level=0;loadLevel(0);state='play';hideOverlay();} });
+    showOverlay('Tapınak sizin! 🏆','Tüm 12 bölümü birlikte geçtiniz. Barış & Su kopmaz! 💛','Baştan oyna',false,true,()=>{ if(mode==='online')hostNext(); else {level=0;loadLevel(0);state='play';hideOverlay();} });
 }
 ovBtn.onclick=()=>{ if(ovAction)ovAction(); };
 document.getElementById('resetBtn').onclick=()=>{
