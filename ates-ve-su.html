@@ -139,27 +139,19 @@ const LEVELS = [
   ["####################","#                  #","#                  #","#                  #","#   r        b     #","#  ###    G ###    #","#wF B PP  G LL AAWf#","####################"],
   ["####################","#                  #","#                  #","#                  #","#  r            b  #","# ###          ### #","#wF L AA PP L  Wf  #","####################"],
   ["####################","#                  #","#                  #","#                  #","#     r       b    #","#    ###  G  ###   #","#wF AA    G LL B Wf#","####################"],
-  ["####################","#                  #","#                  #","#                  #","#    r          b  #","#   ### G      ### #","#wF B PPG LL AA Wf #","####################"],
+  ["####################","#                  #","#                  #","#    r          b  #","#   ###BG      ### #","#                  #","#wF  PPG LL AA  Wf #","####################"],
   ["####################","#                  #","#                  #","#                  #","#   r          b   #","#  ###  G     ###  #","#wFB AA G PP LL Wf #","####################"],
 
-  // Bölüm 8 — Çift Koridor
-  ["####################",
-   "#                  #",
-   "#  r  ######  b    #",
-   "#     #    #       #",
-   "# ### #    # ###   #",
-   "#   # #    # #     #",
-   "#wF # #BLLG# # A Wf#",
-   "####################"],
-
+  // Bölüm 8 — Kaldıraç Koşusu
+  ["####################","#                  #","#                  #","#  r          b    #","# ###  ###  ###  ## #","#                  #","#wF  LL B  G AA  Wf#","####################"],
   // Bölüm 9 — Köprü
   ["####################","#                  #","#                  #","#  r          b    #","# ###  B   G  ###  #","# ###        ###   #","#wF LL      AA  Wf #","####################"],
   // Bölüm 10 — Merkez Kapı
   ["####################","#                  #","#                  #","#   r        b     #","# ##### G #####    #","#       B          #","#wF  LL  AA     Wf #","####################"],
-  // Bölüm 11 — Dört Hazine
-  ["####################","#  r   b    r   b  #","#                  #","# ##  ###  ###  ## #","# ##  # BG  #   ## #","#     #     #      #","#wF   L  G  A   Wf #","####################"],
+  // Bölüm 11 — Çift Kaldıraç
+  ["####################","#  r   b    r   b  #","#                  #","# ##  ###  ###  ## #","# ##   B G  #   ## #","#      #    #      #","#wF   LL G  AA  Wf #","####################"],
   // Bölüm 12 — Son Kale
-  ["####################","#                  #","#r  b   r   b   r b#","####  #   #   #  ###","#     # B # G #    #","#     #   #   #    #","#wF  LL   G  AA Wf #","####################"],
+  ["####################","#                  #","#  r   b    r   b  #","# ###  B   #  ###  #","#          #       #","#          #       #","#wF LL  G  AA   Wf #","####################"],
 ];
 const TS=40, GRAV=1500, JUMP=820, SPD=210, ACC=2800, FRIC=2200, MAXFALL=900;
 
@@ -615,7 +607,7 @@ function showWin(){
   if(mode==='online'&&role==='guest')
     showOverlay('Tapınak sizin! 🏆','Tüm bölümleri birlikte geçtiniz.','Baştan oyna',false,true,()=>send({t:'next'}));
   else
-    showOverlay('Tapınak sizin! 🏆','Tüm 12 bölümü birlikte geçtiniz. Barış & Su kopmaz! 💛','Baştan oyna',false,true,()=>{ if(mode==='online')hostNext(); else {level=0;loadLevel(0);state='play';hideOverlay();} });
+    showOverlay('Tapınak sizin! 🏆','Tüm 12 bölümü birlikte geçtiniz. Barış & Su kopmaz! 💛','Ana Menüye Dön',false,true,()=>{ if(mode==='online')hostNext(); else location.href='index.html'; });
 }
 ovBtn.onclick=()=>{ if(ovAction)ovAction(); };
 document.getElementById('resetBtn').onclick=()=>{
